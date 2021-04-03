@@ -53,6 +53,10 @@ public final class Bot extends TelegramLongPollingCommandBot {
         register(new SettingsCommand("settings", "Мои настройки"));
         logger.debug("Команда settings создана");
 
+        register(new InfoCommand("info", "Информация о руководстве"));
+        logger.debug("Информация о руководстве");
+        register(new HeadsCommand("new", "Информация о руководстве"));
+        logger.debug("Информация о руководстве");
         register(new Heads("heads", "Информация о руководстве"));
         logger.debug("Информация о руководстве");
         register(new Objects("objects", "Реализованные проекты"));
@@ -75,18 +79,36 @@ public final class Bot extends TelegramLongPollingCommandBot {
         return BOT_NAME;
     }
 
-    /**
-     * Ответ на запрос, не являющийся командой
-     */
+
     @Override
     public void processNonCommandUpdate(Update update) {
-        Message msg = update.getMessage();
-        Long chatId = msg.getChatId();
-        String userName = Utils.getUserName(msg);
-
-        String answer = nonCommand.nonCommandExecute(chatId, userName, msg.getText());
-        setAnswer(chatId, userName, answer);
+        if(update.hasMessage()){
+            if(update.getMessage().hasText()){
+                if(update.getMessage().getText().equals("Hello")){
+                    Message msg = update.getMessage();
+                    Long chatId = msg.getChatId();
+//                    String userName = Utils.getUserName(msg);
+                    setAnswer(chatId, null, "Reply to Hello");
+                }
+            }
+        }else if(update.hasCallbackQuery()){
+            Long chatId = update.getCallbackQuery().getMessage().getChatId();
+            Message msg = update.getMessage();
+//            String userName = Utils.getUserName(msg);
+            String msgText = update.getCallbackQuery().getData();
+            setAnswer(chatId, null, msgText);
+        }
     }
+
+//    @Override
+//    public void processNonCommandUpdate(Update update) {
+//        Message msg = update.getMessage();
+//        Long chatId = msg.getChatId();
+//        String userName = Utils.getUserName(msg);
+//
+//        String answer = nonCommand.nonCommandExecute(chatId, userName, msg.getText());
+//        setAnswer(chatId, userName, answer);
+//    }
 
     /**
      * Получение настроек по id чата. Если ранее для этого чата в ходе сеанса работы бота настройки не были установлены,
